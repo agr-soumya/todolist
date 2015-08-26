@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<script src = "http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js">
+
+</script>
+<head>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+	<div ng-app = "TaskManager">
+		<div class = "container" ng-controller = "taskController">
+			<h1> to-do list app</h1>
+			<p class = "tagline"> an angular js todo app</p>
+			<form>
+
+				<div class = "inputContainer">
+					<input type = "text" id = "description" class= "taskName" placeholder = "What do you need to do?" ng-model = "newTask">
+					<label for = "description">Description</label>
+				</div>
+				<div class = "inputContainer half last">
+					<i class = "fa fa-caret-down selectArrow"></i>
+					<select id = "category" class = "taskCategory" ng-model = "newTaskCategory" ng-options = "obj.name for obj in categories">
+					<option class = "disabled" value = "">choose a category</option>
+					</select>
+					<label for= "category">Category</label>
+				</div>
+				<div class="inputContainer half last right">
+          			<input type="date" id="dueDate" class="taskDate" ng-model="newTaskDate">
+          		<label for="dueDate">Due Date</label>
+        		</div>
+        		<div class="row">
+          			<button class="taskAdd" ng-click="addNew()"><i class="fa fa-plus icon"></i>Add task</button>
+          			<button class="taskDelete" ng-click="deleteTask()"><i class="fa fa-trash-o icon"></i>Delete Tasks</button>
+        		</div>
+			</form>
+			<ul class = "taskList">
+				<li class = "taskItem" ng-repeat = "taskItem in taskItem track by $index" ng-model = "taskItem">
+					<input type = "checkbox" class = "taskCheckbox" ng-model = "taskItem.complete" ng-change = "save()">
+					<span class= "complete-{{taskItem.complete}}">{{taskItem.description}}</span>
+					<span class = "category-{{taskItem.category}}">{{taskItem.category}}</span>
+					<strong class="taskDate complete-{{taskItem.complete}}"><i class="fa fa-calendar"></i>{{taskItem.date | date : 'mediumDate'}}</strong> 
+				</li>
+
+			</ul>
+
+
+	</div>
+
+</body>
+<script>
+//define the app
+var app = angular.module('TaskManager', []);
+//controllers
+app.controller('taskController',function($scope)
+{
+    $scope.today = new Date();
+    $scope.saved = localStorage.getItem('taskItems');
+    $scope.taskItem = (localStorage.getItem('taskItems')!==null) ? 
+    JSON.parse($scope.saved) : [ {description: "Why not add a task?", date: $scope.today, complete: false}];
+    localStorage.setItem('taskItems', JSON.stringify($scope.taskItem));
+
+    $scope.newTask = null;
+    $scope.newTaskDate = null;
+    $scope.categories = [
+    {name: 'Personal'},
+    {name: 'Work'},
+    {name: 'School'},
+    {name: 'Cleaning'},
+    {name: 'Other'}
+    ];
+    $scope.newTaskCategory = $scope.categories;
+    $scope.addNew = function()
+    {
+        if($scope.newTaskDate == null || $scope.newTaskDate == '')
+        {
+            $scope.taskItem.push({
+                description: $scope.newTask,
+                date: "no deadline",
+                complete: false,
+                category: $scope.newTaskCategory.name
+            })
+        }
+        else
+        {
+            $scope.taskItem.push({
+                description: $scope.newTask,
+                date: $scope.newTaskDate,
+                complete: false,
+                category: $scope.newTaskCategory.name
+            })
+        };
+        $scope.newTask = '';
+        $scope.newTaskDate = '';
+        $scope.newTaskCategory = $scope.categories;
+        localStorage.setItem('taskItems', JSON.stringify($scope.taskItem));
+    };
+    $scope.deleteTask = function()
+    {
+        var completedTask = $scope.taskItem;
+        $scope.taskItem = [];
+        angular.forEach(completedTask, function (taskItem)
+        {
+            if(!taskItem.complete)
+            {
+                $scope.taskItem.push(taskItem);
+            }
+        });
+        localStorage.setItem('taskItems', JSON.stringify($scope.taskItem));
+        
+    };
+    $scope.save = function()
+        {
+            localStorage.setItem('taskitems',JSON.stringify($scope.taskItem));
+        }
+
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+</script>
+
+</html>
